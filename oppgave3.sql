@@ -12,13 +12,11 @@ WHERE UtgittÅr > 2000
 ORDER BY UtgittÅr, Tittel;
 
 
-
 -- 2) Skriv en SQL spørring som henter forfatternavn og tittel på alle bøker sortert alfabetisk etter forfatter.
 --    (Show author and title of all books, sorted by author)
 SELECT Forfatter, Tittel
 FROM bok
 ORDER BY Forfatter, Tittel;
-
 
 
 -- 3) Skriv en SQL spørring som henter alle bøker med mer enn 300 sider.
@@ -29,9 +27,16 @@ WHERE AntallSider > 300
 ORDER BY AntallSider DESC, Tittel;
 
 
-
 -- 4) Skriv en SQL som legger til en ny bok i tabellen 'bok'. (Bok finner du selv)
---    (Add a new book; if it already exists, update it)
+--    (Add a new book to the table)
+
+-- 4A) Enkel versjon / Simple version
+--     Works once; gives an error if the same ISBN already exists.
+INSERT INTO bok (ISBN, Tittel, Forfatter, Forlag, UtgittÅr, AntallSider)
+VALUES ('8203361234', 'Naiv. Super', 'Loe, Erlend', 'Cappelen Damm', 1996, 208);
+
+-- 4B) Trygg versjon / Safe version (for repeated runs)
+--     Prevents duplicate errors; updates the book if the ISBN already exists.
 INSERT INTO bok (ISBN, Tittel, Forfatter, Forlag, UtgittÅr, AntallSider)
 VALUES ('8203361234', 'Naiv. Super', 'Loe, Erlend', 'Cappelen Damm', 1996, 208)
 ON DUPLICATE KEY UPDATE
@@ -42,10 +47,16 @@ ON DUPLICATE KEY UPDATE
   AntallSider = VALUES(AntallSider);
 
 
-
 -- 5) Skriv en SQL som legger til en ny låner i tabellen 'låner'.
---    (Add a new borrower to the table; if the PK already exists, update address)
+--    (Add a new borrower)
 
+-- 5A) Enkel versjon / Simple version
+--     Adds a new borrower; LNr is assigned automatically.
+INSERT INTO låner (Fornavn, Etternavn, Adresse)
+VALUES ('Nina', 'Nordmann', 'Storgata 1');
+
+-- 5B) Trygg versjon / Safe version (for repeated runs)
+--     Uses a fixed LNr; updates the borrower if that LNr already exists.
 INSERT INTO låner (LNr, Fornavn, Etternavn, Adresse)
 VALUES (3, 'Nina', 'Nordmann', 'Storgata 1')
 ON DUPLICATE KEY UPDATE
@@ -54,13 +65,11 @@ ON DUPLICATE KEY UPDATE
   Adresse = VALUES(Adresse);
 
 
-
 -- 6) Skriv en SQL som oppdaterer adresse for en spesifikk låner.
 --    (Update address for one borrower)
 UPDATE låner
 SET Adresse = 'Nyveien 42'
 WHERE LNr = 3;
-
 
 
 -- 7) Skriv en SQL som henter alle utlån sammen med lånerens navn og bokens tittel.
@@ -82,7 +91,6 @@ JOIN bok AS b
 ORDER BY u.UtlånsNr;
 
 
-
 -- 8) Skriv en SQL som henter alle bøker og antall eksemplarer for hver bok.
 --    (Show all books and how many copies each has)
 SELECT b.ISBN,
@@ -92,7 +100,6 @@ FROM bok AS b
 LEFT JOIN eksemplar AS e ON e.ISBN = b.ISBN
 GROUP BY b.ISBN, b.Tittel
 ORDER BY b.Tittel;
-
 
 
 -- 9) Skriv en SQL som henter antall utlån per låner.
@@ -107,7 +114,6 @@ GROUP BY l.LNr, l.Fornavn, l.Etternavn
 ORDER BY antall_utlån DESC, l.Etternavn, l.Fornavn;
 
 
-
 -- 10) Skriv en SQL som henter antall utlån per bok.
 --     (Show number of loans per book)
 SELECT b.ISBN,
@@ -119,7 +125,6 @@ GROUP BY b.ISBN, b.Tittel
 ORDER BY antall_utlån DESC, b.Tittel;
 
 
-
 -- 11) Skriv en SQL som henter alle bøker som ikke har blitt lånt ut.
 --     (Show all books never borrowed)
 
@@ -129,7 +134,6 @@ FROM bok AS b
 LEFT JOIN utlån AS u ON u.ISBN = b.ISBN
 WHERE u.ISBN IS NULL
 ORDER BY b.Tittel;
-
 
 
 -- 12) Skriv en SQL som henter forfatter og antall utlånte bøker per forfatter.
