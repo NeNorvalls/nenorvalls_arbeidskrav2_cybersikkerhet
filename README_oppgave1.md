@@ -1,4 +1,5 @@
 # Oppgave1 Readme
+```sql
 
 ## 1) Opprett databasen / Create the database
 -- -------------------------------------------------
@@ -222,3 +223,4 @@ JOIN `bok` AS b
 ORDER BY u.`UtlånsNr`;
 -- Joins the four tables together to show:
 -- Loan number, borrower’s first and last name, book title, date, and whether it’s returned.
+```

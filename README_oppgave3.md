@@ -1,6 +1,6 @@
 # Oppgave 3 – SQL-spørringer for ga_bibliotek
 -- Task 3 – SQL queries for ga_bibliotek
-
+```sql
 
 USE `ga_bibliotek`;
 -- Use the existing database we created in Oppgave 1.
@@ -245,3 +245,4 @@ GROUP BY b.`Forfatter`
 -- Group per author to summarize.
 ORDER BY `antall_utlån` DESC, b.`Forfatter`;
 -- Show the authors with most borrowed books first.
+```
