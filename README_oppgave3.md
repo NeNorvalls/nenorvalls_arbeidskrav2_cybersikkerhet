@@ -19,7 +19,6 @@ ORDER BY `UtgittÅr`, `Tittel`;
 -- Sort first by year, then by title so the result looks tidy.
 
 
-
 ## 2) Hent forfatternavn og tittel på alle bøker,
 --    sortert alfabetisk etter forfatter
 --    (Get author and title of all books, sorted by author)
@@ -31,7 +30,6 @@ FROM `bok`
 -- From the book table.
 ORDER BY `Forfatter`, `Tittel`;
 -- Sort by author name first, and if an author has many books, sort their books by title.
-
 
 
 ## 3) Hent alle bøker med mer enn 300 sider
@@ -48,50 +46,76 @@ ORDER BY `AntallSider` DESC, `Tittel`;
 -- Show the longest books first, and then sort by title for books with same page count.
 
 
+-- 4) Skriv en SQL som legger til en ny bok i tabellen 'bok'. (Bok finner du selv)
+--    (Add a new book to the table)
 
-## 4) Legg til en ny bok i tabellen 'bok'
---    (Insert a new book into the 'bok' table)
---    NOTE: we keep ON DUPLICATE KEY so the file can be run twice
---    NOTE 2: ISBN must be 10 chars because table has CHAR(10)
--- -------------------------------------------------
+-- 4A) Enkel versjon / Simple version
+--     Works only the first time. If you run it again with the same ISBN (PK), MySQL will give:
+--     "Error Code: 1062. Duplicate entry '...' for key 'bok.PRIMARY'"
+INSERT INTO bok (ISBN, Tittel, Forfatter, Forlag, UtgittÅr, AntallSider)
+-- INSERT INTO = add a new row to the table 'bok'
+-- (ISBN, Tittel, Forfatter, Forlag, UtgittÅr, AntallSider) = list of columns to fill
+VALUES ('8203361234', 'Naiv. Super', 'Loe, Erlend', 'Cappelen Damm', 1996, 208);
+-- VALUES (...) = actual data for each column, same order as above
+-- '8203361234' = ISBN (must be 10 chars, table has CHAR(10))
+-- 'Naiv. Super' = title
+-- 'Loe, Erlend' = author
+-- 'Cappelen Damm' = publisher
+-- 1996 = publication year
+-- 208 = number of pages
 
-INSERT INTO `bok` (`ISBN`, `Tittel`, `Forfatter`, `Forlag`, `UtgittÅr`, `AntallSider`)
--- Insert into the book table, listing the columns in the right order.
+
+-- 4B) Trygg versjon / Safe version (for repeated runs)
+--     Use this one if the script might be run several times.
+--     If the book already exists (same ISBN), it will UPDATE it instead of throwing an error.
+INSERT INTO bok (ISBN, Tittel, Forfatter, Forlag, UtgittÅr, AntallSider)
+-- Same columns as in 4A
 VALUES ('8203361234', 'Naiv. Super', 'Loe, Erlend', 'Cappelen Damm', 1996, 208)
--- The actual values for the new book we want to add.
+-- Same data as in 4A
 ON DUPLICATE KEY UPDATE
--- If a book with this ISBN already exists (same PK), update it instead.
-  `Tittel`      = VALUES(`Tittel`),
-  -- Update the title to the value we just tried to insert.
-  `Forfatter`   = VALUES(`Forfatter`),
-  -- Update the author.
-  `Forlag`      = VALUES(`Forlag`),
-  -- Update the publisher.
-  `UtgittÅr`    = VALUES(`UtgittÅr`),
-  -- Update the publication year.
-  `AntallSider` = VALUES(`AntallSider`);
-  -- Update the number of pages.
+-- If ISBN already exists (PRIMARY KEY conflict), run the lines below instead of error
+  Tittel      = VALUES(Tittel),
+  -- Set Tittel to the value from the VALUES(...) part above
+  Forfatter   = VALUES(Forfatter),
+  -- Update author if it changed
+  Forlag      = VALUES(Forlag),
+  -- Update publisher if it changed
+  UtgittÅr    = VALUES(UtgittÅr),
+  -- Update year if it changed
+  AntallSider = VALUES(AntallSider);
+  -- Update number of pages if it changed
 
 
+-- 5) Skriv en SQL som legger til en ny låner i tabellen 'låner'.
+--    (Add a new borrower)
 
-## 5) Legg til en ny låner i tabellen 'låner'
---    (Insert a new borrower into the 'låner' table)
---    We force LNr=3 so ON DUPLICATE KEY makes sense
--- -------------------------------------------------
+-- 5A) Enkel versjon / Simple version
+--     This is the most normal one, because LNr is AUTO_INCREMENT in the table.
+--     You do NOT need to give LNr – MySQL will create 1, 2, 3, ...
+INSERT INTO låner (Fornavn, Etternavn, Adresse)
+-- Insert into table 'låner', only the 3 text columns
+VALUES ('Nina', 'Nordmann', 'Storgata 1');
+-- 'Nina' = first name
+-- 'Nordmann' = last name
+-- 'Storgata 1' = address
+-- LNr will be created automatically
 
-INSERT INTO `låner` (`LNr`, `Fornavn`, `Etternavn`, `Adresse`)
--- Insert into the borrower table and explicitly give the columns.
+
+-- 5B) Trygg versjon / Safe version (for repeated runs)
+--     Here a fixed LNr is used (3). This makes it possible to run the script many times.
+--     If LNr = 3 already exists, the row is UPDATED instead of giving an error.
+INSERT INTO låner (LNr, Fornavn, Etternavn, Adresse)
+-- This time LNr is included, so AUTO_INCREMENT is not used
 VALUES (3, 'Nina', 'Nordmann', 'Storgata 1')
--- We try to create borrower no. 3 with name and address.
+-- Try to insert borrower no. 3
 ON DUPLICATE KEY UPDATE
--- If LNr = 3 already exists, we update instead.
-  `Fornavn`  = VALUES(`Fornavn`),
-  -- Update first name.
-  `Etternavn` = VALUES(`Etternavn`),
-  -- Update last name.
-  `Adresse`  = VALUES(`Adresse`);
-  -- Update address.
-
+-- If LNr 3 already exists, run the lines below instead
+  Fornavn = VALUES(Fornavn),
+  -- Update first name to the new value
+  Etternavn = VALUES(Etternavn),
+  -- Update last name to the new value
+  Adresse = VALUES(Adresse);
+  -- Update address to the new value
 
 
 ## 6) Oppdater adresse for en spesifikk låner
@@ -104,7 +128,6 @@ SET `Adresse` = 'Nyveien 42'
 -- New address we want to set.
 WHERE `LNr` = 3;
 -- Only change the borrower whose ID is 3.
-
 
 
 ## 7) Hent alle utlån med lånerens navn og boktittel
@@ -139,7 +162,6 @@ ORDER BY u.`UtlånsNr`;
 -- List the loans in the order they were made.
 
 
-
 ## 8) Hent alle bøker og antall eksemplarer for hver bok
 --    (Get all books and the number of copies for each book)
 -- -------------------------------------------------
@@ -159,7 +181,6 @@ GROUP BY b.`ISBN`, b.`Tittel`
 -- We need to group by book to count per book.
 ORDER BY b.`Tittel`;
 -- Sort books alphabetically.
-
 
 
 ## 9) Hent antall utlån per låner
@@ -185,7 +206,6 @@ ORDER BY `antall_utlån` DESC, l.`Etternavn`, l.`Fornavn`;
 -- Show the borrowers with most loans first, then sort by name.
 
 
-
 ## 10) Hent antall utlån per bok
 --     (Get the number of loans per book)
 -- -------------------------------------------------
@@ -207,7 +227,6 @@ ORDER BY `antall_utlån` DESC, b.`Tittel`;
 -- Show most-loaned books first, then order by title.
 
 
-
 ## 11) Hent alle bøker som ikke har blitt lånt ut
 --     (Get all books that have never been borrowed)
 -- -------------------------------------------------
@@ -225,7 +244,6 @@ WHERE u.`ISBN` IS NULL
 -- Keep only books that did NOT get a matching loan.
 ORDER BY b.`Tittel`;
 -- Show them alphabetically.
-
 
 
 ## 12) Hent forfatter og antall utlånte bøker per forfatter
