@@ -1,1 +1,0 @@
-# nenorvalls_arbeidskrav2_cybersikkerhet
