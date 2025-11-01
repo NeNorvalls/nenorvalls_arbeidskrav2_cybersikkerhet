@@ -32,7 +32,6 @@ ORDER BY AntallSider DESC, Tittel;
 
 -- 4) Skriv en SQL som legger til en ny bok i tabellen 'bok'. (Bok finner du selv)
 --    (Add a new book; if it already exists, update it)
---    Viktig: ISBN er CHAR(10), så vi bruker 10 tegn.
 INSERT INTO bok (ISBN, Tittel, Forfatter, Forlag, UtgittÅr, AntallSider)
 VALUES ('8203361234', 'Naiv. Super', 'Loe, Erlend', 'Cappelen Damm', 1996, 208)
 ON DUPLICATE KEY UPDATE
@@ -46,8 +45,7 @@ ON DUPLICATE KEY UPDATE
 
 -- 5) Skriv en SQL som legger til en ny låner i tabellen 'låner'.
 --    (Add a new borrower to the table; if the PK already exists, update address)
---    NB: ON DUPLICATE KEY fungerer bare hvis vi oppgir en eksisterende LNr.
---    Dette eksempelet vil oppdatere låner 3 hvis den finnes, ellers lage den.
+
 INSERT INTO låner (LNr, Fornavn, Etternavn, Adresse)
 VALUES (3, 'Nina', 'Nordmann', 'Storgata 1')
 ON DUPLICATE KEY UPDATE
@@ -67,7 +65,7 @@ WHERE LNr = 3;
 
 -- 7) Skriv en SQL som henter alle utlån sammen med lånerens navn og bokens tittel.
 --    (Show all loans with borrower’s name and book title)
---    Vi går via eksemplar fordi utlån peker på (ISBN, EksNr)
+
 SELECT u.UtlånsNr,
        l.Fornavn,
        l.Etternavn,
@@ -124,7 +122,7 @@ ORDER BY antall_utlån DESC, b.Tittel;
 
 -- 11) Skriv en SQL som henter alle bøker som ikke har blitt lånt ut.
 --     (Show all books never borrowed)
---     Denne versjonen er enkel og passer fint til oppgaven.
+
 SELECT b.ISBN,
        b.Tittel
 FROM bok AS b
